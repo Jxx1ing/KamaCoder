@@ -1,5 +1,0 @@
-/home/u64/cpp_KamaCoder/MyCache/PerCache/v1/test/build/CMakeFiles/testKLruCache.dir
-/home/u64/cpp_KamaCoder/MyCache/PerCache/v1/test/build/CMakeFiles/testKLruKCache.dir
-/home/u64/cpp_KamaCoder/MyCache/PerCache/v1/test/build/CMakeFiles/testKHashLruCaches.dir
-/home/u64/cpp_KamaCoder/MyCache/PerCache/v1/test/build/CMakeFiles/edit_cache.dir
-/home/u64/cpp_KamaCoder/MyCache/PerCache/v1/test/build/CMakeFiles/rebuild_cache.dir
