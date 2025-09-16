@@ -3,6 +3,10 @@
 #include <mutex>
 #include <unordered_map>
 #include <memory> //weak_ptr 和 shared_ptr
+#include <thread> //KHashLruCaches类的hardware_concurrency
+#include <vector>
+#include <math.h>     //KHashLruCaches类的ceil函数
+#include <functional> ////KHashLruCaches类的hash函数
 #include "KICachePolicy.h"
 using namespace std;
 
@@ -295,6 +299,63 @@ namespace PerCache
                 _historyValueMap.erase(key);
                 KLruCache<Key, Value>::put(key, value);
             }
+        }
+    };
+    // （4）KLruKCaches类
+    template <typename Key, typename Value>
+    class KHashLruCaches // 注意KLruKCaches未继承任何类
+    {
+    private:
+        size_t _capacity;                                          // 缓存总容量
+        int _sliceNum;                                             // 分片数量
+        vector<unique_ptr<KLruCache<Key, Value>>> _lruSliceCaches; // 分片缓存(是一个向量，元素是unique_ptr指针，每个指针指向一个KLruCache类型的缓存)
+    public:
+        // KHashLruCaches类的构造函数
+        KHashLruCaches(size_t capacity, int sliceNum)
+            : _capacity(capacity), _sliceNum(sliceNum > 0 ? sliceNum : std::thread::hardware_concurrency()) // 如果slicenum<0使用CPU核心数
+        /*
+            注意不可以写成hardware_concurrency()（尽管using namespace std 以及#include<thread>。这里需要显式写出来std::thread::
+        */
+        {
+            // 获取每个分片的大小 总大小/分片数 -> 向上取整
+            size_t sliceSize = ceil(_capacity / static_cast<double>(_sliceNum)); // static_cast将int类型转换为double类型：因为整数/整数会舍弃小数部分
+            // 创建sliceSize个分片（每个分片的类型都是KLruCache)
+            for (int i = 0; i < sliceSize; i++)
+            {
+                _lruSliceCaches.emplace_back(new KLruCache<Key, Value>(sliceSize));
+                /*
+                如果不使用new,换一种写法：lruSliceCaches_.emplace_back(make_unique<KLruCache<Key, Value>>(sliceSize));
+                */
+            }
+        }
+        // put——把key-value放入缓存中
+        void put(Key key, Value value)
+        {
+            size_t index = Hash(key) % _sliceNum; // 获取key的hash值，并计算出对应的分片索引
+            _lruSliceCaches[index]->put(key, value);
+        }
+
+        // get——key是否存在
+        bool get(Key key, Value &value)
+        {
+            size_t index = Hash(key) % _sliceNum;
+            return _lruSliceCaches[index]->get(key, value);
+        }
+
+        // get——获取value
+        Value get(Key key)
+        {
+            Value value{};
+            get(key, value); // 调用的是KHashLruCaches类的get(key, value)方法
+            return value;
+        }
+
+    private:
+        // 将key转化为对应的哈希值
+        size_t Hash(Key key)
+        {
+            hash<Key> hashFunc;
+            return hashFunc(key);
         }
     };
 }

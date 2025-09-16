@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/testKHashLruCaches.dir/testKHashLruCaches.cc.o -o /home/u64/cpp_KamaCoder/MyCache/PerCache/v1/bin/testKHashLruCaches 

@@ -15,6 +15,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 add_executable(testKLruCache testKLruCache.cc)
 add_executable(testKLruKCache testKLruKCache.cc)
+add_executable(testKHashLruCaches testKHashLruCaches.cc)
 # 添加名为testKLruCache的可执行文件，源文件为testKLruCache.cc
 # 添加名为testKLruKCache的可执行文件，源文件为testKLruKCache.cc
+# 添加名为testKHashLruCaches的可执行文件，源文件为testKHashLruCaches.cc
 
