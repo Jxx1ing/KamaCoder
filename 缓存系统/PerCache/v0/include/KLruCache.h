@@ -108,6 +108,18 @@ namespace PerCache
             return value;
         }
 
+        // 删除指定元素（到双向链表和哈希表）
+        void remove(Key key)
+        {
+            std::lock_guard<std::mutex> lock(_mutex);
+            auto it = _nodeMap.find(key);
+            if (it != _nodeMap.end())
+            {
+                removeNode(it->second); // 双向链表中删除该节点
+                _nodeMap.erase(it);     // 哈希表中删除key-value
+            }
+        }
+
     private:
         // 构建双向链表（初始化哨兵头尾节点）
         void initializeList()
@@ -186,4 +198,5 @@ namespace PerCache
             _nodeMap.erase(RealHead->getKey()); // 在哈希表中删除key-value(erase)
         }
     };
+
 }
